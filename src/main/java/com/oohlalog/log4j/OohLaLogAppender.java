@@ -69,7 +69,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	 * @param queue
 	 */
 	protected void flushQueue( final Queue<LoggingEvent> queue, final int count ) {
-		System.out.println( ">>>>>>Flushing " + count + " items from queue");
+		//System.out.println( ">>>>>>Flushing " + count + " items from queue");
 		flushing.set( true );
 		executorService.execute(new Runnable() {
 			public void run() {
