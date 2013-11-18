@@ -82,10 +82,17 @@ public class Payload {
 
 		map.put( "level", le.getLevel().toString() );
 		map.put( "message", le.getRenderedMessage() );
-		map.put( "category", le.getLoggerName() );
 		map.put( "timestamp", le.getTimeStamp() );
 
-		if ( le.getThrowableInformation() != null ) {
+		if (le.getProperty("category") != null) map.put("category", le.getProperty("category")); // allow for an explicit category
+		else map.put( "category", le.getLoggerName() );
+
+		if (le.getProperty("increment") != null) map.put("increment", new Integer(le.getProperty("increment")));
+		if (le.getProperty("timestamp") != null) map.put("timestamp", new Long(le.getProperty("timestamp")));
+
+		if (le.getProperty("details") != null) { // allow for explicit
+			map.put("details", le.getProperty("details"));
+		} else if ( le.getThrowableInformation() != null ) {
 			StringBuffer strBuf = new StringBuffer();
 			String[] details = le.getThrowableStrRep();
 			for ( int i = 0; i < details.length; i++ ) {
@@ -107,10 +114,10 @@ public class Payload {
 	 */
 	public static void send( Payload pl ) throws RuntimeException {
 		OutputStream os = null;
-    BufferedReader rd  = null;
-    StringBuilder sb = null;
-    String line = null;
-    HttpURLConnection con = null;
+	    BufferedReader rd  = null;
+	    StringBuilder sb = null;
+	    String line = null;
+	    HttpURLConnection con = null;
 		try {
 			System.out.println("Serializing: " + pl.toString());
 			// Serialize payload into json

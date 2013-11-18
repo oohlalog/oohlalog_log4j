@@ -21,7 +21,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	private final AtomicBoolean shutdown = new AtomicBoolean( false );
 
 	// Config options
-	private int maxBuffer = 100;//5;
+	private int maxBuffer = 150;//5;
 	private int submissionThreadPool = 1;
 	private String host = "api.oohlalog.com";
 	private String path = "/api/logging/save.json";
