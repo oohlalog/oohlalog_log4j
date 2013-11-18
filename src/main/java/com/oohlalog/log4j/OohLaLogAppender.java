@@ -105,7 +105,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	 * @param queue
 	 */
 	protected void flushQueue( final Queue<LoggingEvent> queue ) {
-		System.out.println( ">>>>>>Flushing Queue Completely" );
+		//System.out.println( ">>>>>>Flushing Queue Completely" );
 		executorService.execute(new Runnable() {
 			public void run() {
 				List<LoggingEvent> logs = new ArrayList<LoggingEvent>(queue.size());
@@ -145,7 +145,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 				// If appender closes, let thread die
 				while ( !shutdown.get() ) {
 
-					System.out.println( "Timer Cycle" );
+					//System.out.println( "Timer Cycle" );
 					// If timeout, flush queue
 					if ( (System.currentTimeMillis() - logger.lastFlush > logger.timeBuffer) && !logger.flushing.get() ) {
 						System.out.println( "Flushing from timer expiration" );
