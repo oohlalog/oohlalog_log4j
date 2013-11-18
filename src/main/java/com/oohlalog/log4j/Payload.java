@@ -28,6 +28,7 @@ public class Payload {
 	private String path = null;
 	private int port = 80;
 	private boolean secure = false;
+	private boolean debug = false;
 	private List<LoggingEvent> messages = null;
 	private Map<String, Object> counters = null;
 
@@ -120,17 +121,17 @@ public class Payload {
 	    String line = null;
 	    HttpURLConnection con = null;
 		try {
-			System.out.println("Serializing: " + pl.toString());
+			if (pl.getDebug()) System.out.println("Serializing: " + pl.toString());
 			// Serialize payload into json
 			String json = serialize( pl );
 
-			// System.out.println( ">>>>>>>>>>>Payload: " + pl.toString() );
+			if (pl.getDebug()) System.out.println( ">>>>>>>>>>>Payload: " + pl.toString() );
 
 			// Create connection to oohlalog server
 			URL url = new URL( (pl.getSecure() ? "https" : "http"), pl.getHost(), pl.getPort(), pl.getPath()+"?apiKey="+pl.getAuthToken() );
 
-			// System.out.println( ">>>>>>>>>>>Submitting to: " + url.toString() );
-			// System.out.println( ">>>>>>>>>>>JSON: " + json.toString() );
+			if (pl.getDebug()) System.out.println( ">>>>>>>>>>>Submitting to: " + url.toString() );
+			if (pl.getDebug()) System.out.println( ">>>>>>>>>>>JSON: " + json.toString() );
 			con = (HttpURLConnection) url.openConnection();
 			con.setDoOutput(true);
 			con.setDoInput(true);
@@ -144,13 +145,13 @@ public class Payload {
 			os = con.getOutputStream();
 			os.write( json.getBytes() );
 
-      rd  = new BufferedReader(new InputStreamReader(con.getInputStream()));
-      sb = new StringBuilder();
+			rd  = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			sb = new StringBuilder();
 
-      while ((line = rd.readLine()) != null){
-          sb.append(line + '\n');
-      }
-			//System.out.println( ">>>>>>>>>>>Received: " + sb.toString() );
+			while ((line = rd.readLine()) != null){
+			  sb.append(line + '\n');
+			}
+			if (pl.getDebug()) System.out.println( ">>>>>>>>>>>Received: " + sb.toString() );
 
 		}
 		catch ( Throwable t ) {
@@ -227,6 +228,14 @@ public class Payload {
 		this.secure = secure;
 	}
 
+	public boolean getDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
 	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer();
@@ -234,6 +243,8 @@ public class Payload {
 		sb.append("{authToken='").append(authToken).append('\'');
 		sb.append(", host='").append(host).append('\'');
 		sb.append(", path='").append(path).append('\'');
+		sb.append(", secure='").append(secure).append('\'');
+		sb.append(", debug='").append(debug).append('\'');
 		sb.append(", port=").append(port);
 		sb.append('}');
 		return sb.toString();
@@ -248,6 +259,7 @@ public class Payload {
 		private String path = null;
 		private int port = 80;
 		private boolean secure = false;
+		private boolean debug = false;
 		private List<LoggingEvent> messages = null;
 		private Map<String, Object> counters = null;
 
@@ -261,6 +273,7 @@ public class Payload {
 			pl.port = this.port;
 			pl.path = this.path;
 			pl.secure = this.secure;
+			pl.debug = this.debug;
 			return pl;
 		}
 
@@ -295,6 +308,11 @@ public class Payload {
 		}
 		public Builder secure( boolean secure ) {
 			this.secure = secure;
+			return this;
+		}
+
+		public Builder debug( boolean debug ) {
+			this.debug = debug;
 			return this;
 		}
 	}

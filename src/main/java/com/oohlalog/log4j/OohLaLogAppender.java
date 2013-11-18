@@ -28,6 +28,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	private int port = 80;
 	private String authToken = null;
 	private boolean secure = false;
+	private boolean debug = false;
 
 	public OohLaLogAppender() {
 		super();
@@ -44,7 +45,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 
 	@Override
 	protected void append( LoggingEvent event ) {
-		//System.out.println( ">>>>>>OohLaLogAppender.append" );
+		if (getDebug()) System.out.println( ">>>>>>OohLaLogAppender.append" );
 		queue.add( event );
 
 		if ( queue.size() >= maxBuffer && !flushing.get() )
@@ -70,7 +71,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	 * @param queue
 	 */
 	protected void flushQueue( final Queue<LoggingEvent> queue, final int count ) {
-		//System.out.println( ">>>>>>Flushing " + count + " items from queue");
+		if (getDebug()) System.out.println( ">>>>>>Flushing " + count + " items from queue");
 		flushing.set( true );
 		executorService.execute(new Runnable() {
 			public void run() {
@@ -89,6 +90,8 @@ public class OohLaLogAppender extends AppenderSkeleton {
 					.host(getHost())
 					.path(getPath())
 					.port(getPort())
+					.secure(getSecure())
+					.debug(getDebug())
 					.build();
 					Payload.send( pl );
 				}
@@ -105,7 +108,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	 * @param queue
 	 */
 	protected void flushQueue( final Queue<LoggingEvent> queue ) {
-		//System.out.println( ">>>>>>Flushing Queue Completely" );
+		if (getDebug()) System.out.println( ">>>>>>Flushing Queue Completely" );
 		executorService.execute(new Runnable() {
 			public void run() {
 				List<LoggingEvent> logs = new ArrayList<LoggingEvent>(queue.size());
@@ -122,6 +125,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 					.path(getPath())
 					.port(getPort())
 					.secure(getSecure())
+					.debug(getDebug())
 					.build();
 
 				Payload.send( pl );
@@ -145,10 +149,10 @@ public class OohLaLogAppender extends AppenderSkeleton {
 				// If appender closes, let thread die
 				while ( !shutdown.get() ) {
 
-					//System.out.println( "Timer Cycle" );
+					if (getDebug()) System.out.println( "Timer Cycle" );
 					// If timeout, flush queue
 					if ( (System.currentTimeMillis() - logger.lastFlush > logger.timeBuffer) && !logger.flushing.get() ) {
-						System.out.println( "Flushing from timer expiration" );
+						if (getDebug()) System.out.println( "Flushing from timer expiration" );
 						logger.flushQueue( logger.queue, logger.getMaxBuffer() );
 					}
 
@@ -232,4 +236,13 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	public void setSecure(boolean secure) {
 		this.secure = secure;
 	}
+
+	public boolean getDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
 }
