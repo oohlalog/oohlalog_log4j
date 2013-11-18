@@ -27,6 +27,7 @@ public class Payload {
 	private String host = null;
 	private String path = null;
 	private int port = 80;
+	private boolean secure = false;
 	private List<LoggingEvent> messages = null;
 	private Map<String, Object> counters = null;
 
@@ -126,7 +127,7 @@ public class Payload {
 			// System.out.println( ">>>>>>>>>>>Payload: " + pl.toString() );
 
 			// Create connection to oohlalog server
-			URL url = new URL( "http", pl.getHost(), pl.getPort(), pl.getPath()+"?apiKey="+pl.getAuthToken() );
+			URL url = new URL( (pl.getSecure() ? "https" : "http"), pl.getHost(), pl.getPort(), pl.getPath()+"?apiKey="+pl.getAuthToken() );
 
 			// System.out.println( ">>>>>>>>>>>Submitting to: " + url.toString() );
 			// System.out.println( ">>>>>>>>>>>JSON: " + json.toString() );
@@ -218,6 +219,14 @@ public class Payload {
 		this.port = port;
 	}
 
+	public boolean getSecure() {
+		return secure;
+	}
+
+	public void setSecure(boolean secure) {
+		this.secure = secure;
+	}
+
 	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer();
@@ -238,6 +247,7 @@ public class Payload {
 		private String host = null;
 		private String path = null;
 		private int port = 80;
+		private boolean secure = false;
 		private List<LoggingEvent> messages = null;
 		private Map<String, Object> counters = null;
 
@@ -250,6 +260,7 @@ public class Payload {
 			pl.counters = this.counters;
 			pl.port = this.port;
 			pl.path = this.path;
+			pl.secure = this.secure;
 			return pl;
 		}
 
@@ -280,6 +291,10 @@ public class Payload {
 
 		public Builder port( int port ) {
 			this.port = port;
+			return this;
+		}
+		public Builder secure( boolean secure ) {
+			this.secure = secure;
 			return this;
 		}
 	}

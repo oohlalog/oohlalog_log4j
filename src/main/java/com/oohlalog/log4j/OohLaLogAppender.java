@@ -27,6 +27,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	private String path = "/api/logging/save.json";
 	private int port = 80;
 	private String authToken = null;
+	private boolean secure = false;
 
 	public OohLaLogAppender() {
 		super();
@@ -120,6 +121,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 					.host(getHost())
 					.path(getPath())
 					.port(getPort())
+					.secure(getSecure())
 					.build();
 
 				Payload.send( pl );
@@ -221,5 +223,13 @@ public class OohLaLogAppender extends AppenderSkeleton {
 
 	public void setTimeBuffer(long timeBuffer) {
 		this.timeBuffer = timeBuffer;
+	}
+
+	public boolean getSecure() {
+		return secure;
+	}
+
+	public void setSecure(boolean secure) {
+		this.secure = secure;
 	}
 }
