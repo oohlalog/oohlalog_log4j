@@ -149,7 +149,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 				// If appender closes, let thread die
 				while ( !shutdown.get() ) {
 
-					if (getDebug()) System.out.println( "Timer Cycle" );
+					if (getDebug()) System.out.println( ">>Timer Cycle" );
 					// If timeout, flush queue
 					if ( (System.currentTimeMillis() - logger.lastFlush > logger.timeBuffer) && !logger.flushing.get() ) {
 						if (getDebug()) System.out.println( "Flushing from timer expiration" );
