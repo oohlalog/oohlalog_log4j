@@ -29,6 +29,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	private String authToken = null;
 	private boolean secure = false;
 	private boolean debug = false;
+	private String hostName = null;
 
 	public OohLaLogAppender() {
 		super();
@@ -46,6 +47,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	@Override
 	protected void append( LoggingEvent event ) {
 		if (getDebug()) System.out.println( ">>>>>>OohLaLogAppender.append" );
+		if (getHostName() != null) event.setProperty("hostName", getHostName());
 		queue.add( event );
 
 		if ( queue.size() >= maxBuffer && !flushing.get() )
@@ -195,6 +197,14 @@ public class OohLaLogAppender extends AppenderSkeleton {
 
 	public void setHost(String host) {
 		this.host = host;
+	}
+
+	public String getHostName() {
+		return hostName;
+	}
+
+	public void setHostName(String hostName) {
+		this.hostName = hostName;
 	}
 
 	public String getPath() {

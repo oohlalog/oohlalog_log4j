@@ -25,6 +25,7 @@ public class Payload {
 	// Config
 	private String authToken = null;
 	private String host = null;
+	private String hostName = null;
 	private String path = null;
 	private int port = 80;
 	private boolean secure = false;
@@ -89,6 +90,8 @@ public class Payload {
 		if (le.getProperty("category") != null) map.put("category", le.getProperty("category")); // allow for an explicit category
 		else map.put( "category", le.getLoggerName() );
 
+		if (le.getProperty("token") != null) map.put("token", le.getProperty("token"));
+		if (le.getProperty("hostName") != null) map.put("hostName", le.getProperty("hostName"));
 		if (le.getProperty("increment") != null) map.put("increment", new Integer(le.getProperty("increment")));
 		if (le.getProperty("timestamp") != null) map.put("timestamp", new Long(le.getProperty("timestamp")));
 
@@ -188,6 +191,14 @@ public class Payload {
 		this.host = host;
 	}
 
+	public String getHostName() {
+		return hostName;
+	}
+
+	public void setHostName(String hostName) {
+		this.hostName = hostName;
+	}
+
 	public List<LoggingEvent> getMessages() {
 		return messages;
 	}
@@ -256,6 +267,7 @@ public class Payload {
 	public static class Builder {
 		private String authToken = null;
 		private String host = null;
+		private String hostName = null;
 		private String path = null;
 		private int port = 80;
 		private boolean secure = false;
@@ -268,6 +280,7 @@ public class Payload {
 			Payload pl = new Payload();
 			pl.authToken = this.authToken;
 			pl.host = this.host;
+			pl.hostName = this.hostName;
 			pl.messages = this.messages;
 			pl.counters = this.counters;
 			pl.port = this.port;
@@ -289,6 +302,11 @@ public class Payload {
 
 		public Builder path( String path ) {
 			this.path = path;
+			return this;
+		}
+
+		public Builder hostName( String hostName ) {
+			this.hostName = hostName;
 			return this;
 		}
 
