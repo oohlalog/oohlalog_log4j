@@ -77,26 +77,29 @@ public class OohLaLogAppender extends AppenderSkeleton {
 		flushing.set( true );
 		executorService.execute(new Runnable() {
 			public void run() {
-				List<LoggingEvent> logs = new ArrayList<LoggingEvent>(count);
-				for (int i = 0; i < count; i++) {
-					LoggingEvent log;
-					if ((log = queue.poll()) == null)
-						break;
+				while(queue.size() >= count) {
+					List<LoggingEvent> logs = new ArrayList<LoggingEvent>(count);
+					for (int i = 0; i < count; i++) {
+						LoggingEvent log;
+						if ((log = queue.poll()) == null)
+							break;
 
-					logs.add(log);
+						logs.add(log);
+					}
+					if(logs.size() > 0) {
+						Payload pl = new Payload.Builder()
+						.messages(logs)
+						.authToken(getAuthToken())
+						.host(getHost())
+						.path(getPath())
+						.port(getPort())
+						.secure(getSecure())
+						.debug(getDebug())
+						.build();
+						Payload.send( pl );
+					}
 				}
-				if(logs.size() > 0) {
-					Payload pl = new Payload.Builder()
-					.messages(logs)
-					.authToken(getAuthToken())
-					.host(getHost())
-					.path(getPath())
-					.port(getPort())
-					.secure(getSecure())
-					.debug(getDebug())
-					.build();
-					Payload.send( pl );
-				}
+
 
 
 				lastFlush = System.currentTimeMillis();
