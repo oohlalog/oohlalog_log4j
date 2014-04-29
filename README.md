@@ -25,6 +25,12 @@ log4j.appender.oohlalog.AuthToken=1234
 
 Replace AuthToken with the Api Key for your OohLaLog instance. 
 
+##Logging Context
+You may use the Logging Event [NDC](http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/NDC.html) to set the logging context. This will set the OohLaLog log token that can be used to correllate log entries. For Example, you set the NDC to the remote user making an HTTP request.
+
+```
+org.apache.log4j.NDC.push(javax.servlet.http.HttpServletRequest.getRemoteUser()); 
+```
 
 ##Dependencies
 
