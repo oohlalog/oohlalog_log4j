@@ -41,7 +41,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: "http://nexus.bertramlabs.com/content/repositories/publicReleases/") {
-                authentication(userName: "jleng", password: "Pa55w0rd")
+                authentication(userName: labsUser, password: labsPassword)
             }
             pom.artifactId = 'oohlalog-4j'
             project.group = 'oohlalog'
