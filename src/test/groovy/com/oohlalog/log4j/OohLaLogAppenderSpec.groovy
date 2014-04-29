@@ -1,6 +1,7 @@
 import org.apache.log4j.Logger
 import org.apache.log4j.NDC
 import spock.lang.Specification
+import com.oohlalog.log4j.CountLevel
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,15 +15,12 @@ public class OohLaLogAppenderSpec extends Specification {
 
 	def "test submission of oohlalog payload after buffer reached"() {
 		setup:
-		def logCount = 500
-		org.apache.log4j.NDC.push('0s')			
+		def logCount = 100
 
 		when:
 		(0..logCount).each {
 			if ( it % 10 == 0 ) {
 				Thread.sleep(1000)
-				org.apache.log4j.NDC.pop()
-				org.apache.log4j.NDC.push(it.toString()+'s')			
 			}
 
 			logger.info( "Testing log message ${it}" )
@@ -32,6 +30,45 @@ public class OohLaLogAppenderSpec extends Specification {
 		true
 
 		cleanup:
-		logger.removeAllAppenders()
+		true
+	}
+
+	def "test submission of oohlalog payload with token"() {
+		setup:
+		def logCount = 500
+		org.apache.log4j.NDC.push('0s')			
+
+		when:
+		(0..logCount).each {
+			if ( it % 10 == 0 ) {
+				org.apache.log4j.NDC.pop()
+				org.apache.log4j.NDC.push(it.toString()+'s')			
+			}
+			logger.info( "Testing token #${it}" )
+		}
+
+		then:
+		true
+
+		cleanup:
+		true
+	}
+
+
+	def "test count"() {
+		setup:
+		def logCount = 500
+		true
+		when:
+		(0..logCount).each {
+
+			logger.log(CountLevel.COUNT,"Test 4J Counter")
+		}
+
+		then:
+		true
+
+		cleanup:
+		true
 	}
 }
