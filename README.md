@@ -26,11 +26,16 @@ log4j.appender.oohlalog.AuthToken=1234
 Replace AuthToken with the Api Key for your OohLaLog instance. 
 
 ##Logging Context
-You may use the Logging Event [NDC](http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/NDC.html) to set the logging context. This will set the OohLaLog log token that can be used to correllate log entries. For Example, you set the NDC to the remote user making an HTTP request.
+You may use the Logging Event [NDC](http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/NDC.html) or the Logging Event [MDC](http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/MDC.html)to set the logging context. This will set the OohLaLog log token that can be used to correllate log entries. For Example, you set the NDC to the remote user making an HTTP request.
 
 ```
 org.apache.log4j.NDC.push(javax.servlet.http.HttpServletRequest.getRemoteUser()); 
 ```
+or
+```
+org.apache.log4j.MDC.put("token",javax.servlet.http.HttpServletRequest.getRemoteUser()); // you must use the MDC key "token"
+```
+
 
 ##Dependencies
 
@@ -38,7 +43,7 @@ To use the OohLaLog Log4J Appender please include the following jars in your cla
 
 ###1. OohLaLog Jar
 ```
-oohlalog-4j-0.1.2.jar 
+oohlalog-4j-0.1.3.jar 
 ```
 
 Repository Info:
@@ -50,7 +55,7 @@ Maven info:
 <dependency>
   <groupId>oohlalog</groupId>
   <artifactId>oohlalog-4j</artifactId>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
 </dependency>
 ```
 
