@@ -1,8 +1,13 @@
 apply plugin: 'java'
 apply plugin: "groovy"
+apply plugin: 'maven'
 
 sourceCompatibility = 1.6
-version = '0.1.1'
+version = '0.1.2'
+
+configurations {
+    deployerJars
+}
 
 jar {
     manifest {
@@ -12,6 +17,10 @@ jar {
 
 repositories {
     mavenCentral()
+}
+
+dependencies {
+    deployerJars "org.apache.maven.wagon:wagon-http:2.2"
 }
 
 dependencies {
@@ -26,10 +35,15 @@ test {
     systemProperties 'property': 'value'
 }
 
+
 uploadArchives {
     repositories {
-        flatDir {
-            dirs 'repos'
+        mavenDeployer {
+            repository(url: "http://nexus.bertramlabs.com/content/repositories/publicReleases/") {
+                authentication(userName: "jleng", password: "Pa55w0rd")
+            }
+            pom.artifactId = 'oohlalog-4j'
+            project.group = 'oohlalog'
         }
     }
 }

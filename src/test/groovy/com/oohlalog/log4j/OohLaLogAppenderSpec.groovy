@@ -1,4 +1,5 @@
 import org.apache.log4j.Logger
+import org.apache.log4j.NDC
 import spock.lang.Specification
 
 /**
@@ -14,11 +15,15 @@ public class OohLaLogAppenderSpec extends Specification {
 	def "test submission of oohlalog payload after buffer reached"() {
 		setup:
 		def logCount = 500
+		org.apache.log4j.NDC.push('0s')			
 
 		when:
 		(0..logCount).each {
-			if ( it % 10 == 0 )
+			if ( it % 10 == 0 ) {
 				Thread.sleep(1000)
+				org.apache.log4j.NDC.pop()
+				org.apache.log4j.NDC.push(it.toString()+'s')			
+			}
 
 			logger.info( "Testing log message ${it}" )
 		}
