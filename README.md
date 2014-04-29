@@ -38,7 +38,7 @@ To use the OohLaLog Log4J Appender please include the following jars in your cla
 
 ###1. OohLaLog Jar
 ```
-oohlalog_log4j-0.1.1.jar 
+oohlalog-4j-0.1.2.jar 
 ```
 
 Repository Info:
@@ -50,7 +50,7 @@ Maven info:
 <dependency>
   <groupId>oohlalog</groupId>
   <artifactId>oohlalog-4j</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
 </dependency>
 ```
 
