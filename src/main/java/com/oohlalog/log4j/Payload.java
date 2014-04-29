@@ -91,6 +91,7 @@ public class Payload {
 		else map.put( "category", le.getLoggerName() );
 
 		if (le.getProperty("token") != null) map.put("token", le.getProperty("token"));
+		else if (le.getMDC("token") != null) map.put("token", le.getMDC("token")); 
 		else if (le.getNDC() != null) map.put("token", le.getNDC()); 
 		if (le.getProperty("hostName") != null) map.put("hostName", le.getProperty("hostName"));
 		if (le.getProperty("increment") != null) map.put("increment", new Integer(le.getProperty("increment")));
