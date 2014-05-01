@@ -8,6 +8,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.google.gson.Gson;
+
+import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 /**
  * The log4j appender for OohLaLog
  */
@@ -25,16 +34,25 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	private int submissionThreadPool = 1;
 	private String host = "api.oohlalog.com";
 	private String path = "/api/logging/save.json";
+	private String statsPath = "/api/timeSeries/save.json";
 	private int port = 80;
 	private String authToken = null;
 	private boolean secure = false;
 	private boolean debug = false;
 	private String hostName = null;
+	private boolean stats = false;
+	private boolean memoryStats = true;
+	private boolean fileSystemStats = true;
+	private boolean cpuStats = true;
+	private long statsInterval = 60000;
+
+	Object previousCpuUsage;
 
 	public OohLaLogAppender() {
 		super();
 		init();
 		startFlushTimer();
+		startStatsTimer();
 	}
 	public OohLaLogAppender(int submissionThreadPool, int maxBuffer) {
 		super();
@@ -42,6 +60,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 		this.maxBuffer = maxBuffer;
 		init();
 		startFlushTimer();
+		startStatsTimer();
 	}
 
 	@Override
@@ -175,6 +194,99 @@ public class OohLaLogAppender extends AppenderSkeleton {
 		t.start();
 	}
 
+
+	protected void startStatsTimer() {
+		final OohLaLogAppender logger = this;
+		Thread t = new Thread( new Runnable() {
+			public void run() {
+				// If appender closes, let thread die
+				while (!shutdown.get() ) {
+					if (logger.getStats()) {
+						if (logger.getDebug()) System.out.println( ">>Stats Timer" );
+						// If timeout, flush queue
+						OutputStream os = null;
+					    BufferedReader rd  = null;
+					    StringBuilder sb = null;
+					    String line = null;
+					    HttpURLConnection con = null;
+
+						try {
+							Map<String,Object> payload = new HashMap<String, Object>();
+							payload.put("metrics", StatsUtils.getStats(logger));
+							String h = logger.getHostName();
+							if (h == null ){
+								 try { h = java.net.InetAddress.getLocalHost().getHostName(); }
+								 catch (java.net.UnknownHostException uh) {}
+							}
+							payload.put("host", h);
+							String json = new Gson().toJson( payload );
+
+							URL url = new URL( (logger.getSecure() ? "https" : "http"), logger.getHost(), logger.getPort(), logger.getStatsPath()+"?apiKey="+logger.getAuthToken() );
+
+							if (logger.getDebug()) System.out.println( ">>>>>>>>>>>Submitting to: " + url.toString() );
+							if (logger.getDebug()) System.out.println( ">>>>>>>>>>>JSON: " + json.toString() );
+							con = (HttpURLConnection) url.openConnection();
+							con.setDoOutput(true);
+							con.setDoInput(true);
+							con.setInstanceFollowRedirects(false);
+							con.setRequestMethod("POST");
+							con.setRequestProperty("Content-Type", "application/json");
+							con.setRequestProperty("Content-Length", "" + json.getBytes().length);
+							con.setUseCaches(false);
+
+							// Get output stream and write json
+							os = con.getOutputStream();
+							os.write( json.getBytes() );
+
+							rd  = new BufferedReader(new InputStreamReader(con.getInputStream()));
+							sb = new StringBuilder();
+
+							while ((line = rd.readLine()) != null){
+							  sb.append(line + '\n');
+							}
+							if (logger.getDebug()) System.out.println( ">>>>>>>>>>>Received: " + sb.toString() );
+
+						} catch (Exception e) {
+							if (debug) e.printStackTrace();
+							System.out.println("Unable to send stats: "+e.getMessage());
+						} finally {
+							if ( os != null ) {
+								try {
+								  con.disconnect();
+									os.flush();
+									os.close();
+									con = null;
+								}
+								catch ( Throwable t ) {
+								}
+							}
+						}
+					}
+
+					// Sleep the thread
+					try {
+						Thread.sleep( logger.statsInterval);
+					}
+					catch ( InterruptedException ie ) {
+						// Ignore, and continue
+					}
+				}
+			}
+		});
+
+		t.start();
+	}
+
+	protected Map<String,Double> getRuntimeStats() {
+		Map<String, Double> map = new HashMap<String, Double>();
+		Runtime runtime = Runtime.getRuntime();
+		map.put("maxMemory", new Double(runtime.maxMemory()));
+		map.put("freeMemory", new Double(runtime.freeMemory()));
+		map.put("totalMemory", new Double(runtime.totalMemory()));
+		map.put("usedMemory", new Double(runtime.totalMemory() - runtime.freeMemory()));
+		return map;
+	}
+
 	public int getMaxBuffer() {
 		return maxBuffer;
 	}
@@ -218,6 +330,14 @@ public class OohLaLogAppender extends AppenderSkeleton {
 		this.path = path;
 	}
 
+	public String getStatsPath() {
+		return statsPath;
+	}
+
+	public void setStatsPath(String statsPath) {
+		this.statsPath = statsPath;
+	}
+
 	public int getPort() {
 		return port;
 	}
@@ -256,6 +376,46 @@ public class OohLaLogAppender extends AppenderSkeleton {
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+
+	public boolean getStats() {
+		return stats;
+	}
+
+	public void setStats(boolean stats) {
+		this.stats = stats;
+	}
+
+	public long getStatsInterval() {
+		return statsInterval;
+	}
+
+	public void setStatsInterval(long statsInterval) {
+		this.statsInterval = statsInterval;
+	}
+
+	public boolean getMemoryStats() {
+		return memoryStats;
+	}
+
+	public void setMemoryStats(boolean memoryStats) {
+		this.memoryStats = memoryStats;
+	}
+
+	public boolean getCpuStats() {
+		return cpuStats;
+	}
+
+	public void setCpuStats(boolean cpuStats) {
+		this.cpuStats = cpuStats;
+	}
+
+	public boolean getFileSystemStats() {
+		return fileSystemStats;
+	}
+
+	public void setFileSystemStats(boolean fileSystemStats) {
+		this.fileSystemStats = fileSystemStats;
 	}
 
 }
