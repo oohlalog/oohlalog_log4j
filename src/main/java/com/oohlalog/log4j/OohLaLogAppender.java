@@ -37,6 +37,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	private String statsPath = "/api/timeSeries/save.json";
 	private int port = 80;
 	private String authToken = null;
+	private String agent = "log4j";
 	private boolean secure = false;
 	private boolean debug = false;
 	private String hostName = null;
@@ -110,6 +111,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 						.messages(logs)
 						.authToken(getAuthToken())
 						.host(getHost())
+						.agent(getAgent())
 						.path(getPath())
 						.port(getPort())
 						.secure(getSecure())
@@ -118,8 +120,6 @@ public class OohLaLogAppender extends AppenderSkeleton {
 						Payload.send( pl );
 					}
 				}
-
-
 
 				lastFlush = System.currentTimeMillis();
 				flushing.set( false );
@@ -146,6 +146,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 					.messages(logs)
 					.authToken(getAuthToken())
 					.host(getHost())
+					.agent(getAgent())
 					.path(getPath())
 					.port(getPort())
 					.secure(getSecure())
@@ -328,6 +329,14 @@ public class OohLaLogAppender extends AppenderSkeleton {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	public String getAgent() {
+		return agent;
+	}
+
+	public void setAgent(String agent) {
+		this.agent = agent;
 	}
 
 	public String getStatsPath() {

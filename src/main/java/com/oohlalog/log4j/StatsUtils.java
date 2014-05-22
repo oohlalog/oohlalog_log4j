@@ -20,10 +20,10 @@ public class StatsUtils {
 	public static Map<String,Double> getMemoryStats(OohLaLogAppender logger, Map<String,Double> map) {
 		if (map == null) map = new HashMap<String, Double>();
 		Runtime runtime = Runtime.getRuntime();
-		map.put("memory.maxMemory", new Double(runtime.maxMemory()));
-		map.put("memory.freeMemory", new Double(runtime.freeMemory()));
-		map.put("memory.totalMemory", new Double(runtime.totalMemory()));
-		map.put("memory.usedMemory", new Double(runtime.totalMemory() - runtime.freeMemory()));
+		map.put("memory.jvm.maxMemory", new Double(runtime.maxMemory()));
+		map.put("memory.jvm.freeMemory", new Double(runtime.freeMemory()));
+		map.put("memory.jvm.totalMemory", new Double(runtime.totalMemory()));
+		map.put("memory.jvm.usedMemory", new Double(runtime.totalMemory() - runtime.freeMemory()));
 
 		try {
 			Object physicalMemoryResults = getJavaSysMonResult("physical");

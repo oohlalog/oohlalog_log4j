@@ -3,7 +3,7 @@ apply plugin: "groovy"
 apply plugin: 'maven'
 
 sourceCompatibility = 1.6
-version = '0.1.4'
+version = '0.1.6'
 
 configurations {
     deployerJars
