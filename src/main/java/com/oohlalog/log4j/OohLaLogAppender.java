@@ -23,7 +23,7 @@ import java.net.URL;
 public class OohLaLogAppender extends AppenderSkeleton {
 	private Queue<LoggingEvent> queue = new ArrayDeque<LoggingEvent>();
 	private ExecutorService executorService = null;
-	private long timeBuffer = 60 * 1000;
+	private long timeBuffer = 10000;
 	private long lastFlush = System.currentTimeMillis();
 	private Object lock = new Object();
 	private final AtomicBoolean flushing = new AtomicBoolean( false );
