@@ -68,6 +68,9 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	protected void append( LoggingEvent event ) {
 		if (getDebug()) System.out.println( ">>>>>>OohLaLogAppender.append" );
 		if (getHostName() != null) event.setProperty("hostName", getHostName());
+		if (event.getMDC("token") != null) event.setProperty("token", event.getMDC("token").toString());
+		else if (event.getNDC() != null) event.setProperty("token", event.getNDC().toString());
+
 		queue.add( event );
 
 		if ( queue.size() >= maxBuffer && !flushing.get() )
