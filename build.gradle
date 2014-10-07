@@ -3,7 +3,9 @@ apply plugin: "groovy"
 apply plugin: 'maven'
 
 sourceCompatibility = 1.6
-version = '0.2.2'
+version = '0.2.3'
+project.group = 'oohlalog'
+// project.name = 'oohlalog-4j'
 
 configurations {
     deployerJars
@@ -45,7 +47,7 @@ uploadArchives {
                 authentication(userName: labsUser, password: labsPassword)
             }
             pom.artifactId = 'oohlalog-4j'
-            project.group = 'oohlalog'
+
         }
     }
 }

@@ -71,10 +71,13 @@ public class OohLaLogAppender extends AppenderSkeleton {
 		if (event.getMDC("token") != null) event.setProperty("token", event.getMDC("token").toString());
 		else if (event.getNDC() != null) event.setProperty("token", event.getNDC().toString());
 
-		queue.add( event );
+		if(queue.size() < 10000) {
+			queue.add( event );
 
-		if ( queue.size() >= maxBuffer && !flushing.get() )
-			flushQueue(queue, maxBuffer);
+			if ( queue.size() >= maxBuffer && !flushing.get() )
+				flushQueue(queue, maxBuffer);
+		}
+
 	}
 
 	@Override
@@ -96,11 +99,13 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	 * @param queue
 	 */
 	protected void flushQueue( final Queue<LoggingEvent> queue, final int count ) {
-		if (getDebug()) System.out.println( ">>>>>>Flushing " + count + " items from queue");
 		flushing.set( true );
 		executorService.execute(new Runnable() {
 			public void run() {
-				while(queue.size() >= count) {
+				int bufferSize = queue.size();
+				if (getDebug()) System.out.println( ">>>>>>Flushing " + bufferSize + " items from queue");
+
+				while(queue.size() > 0 && queue.size() >= bufferSize) {
 					List<LoggingEvent> logs = new ArrayList<LoggingEvent>(count);
 					for (int i = 0; i < count; i++) {
 						LoggingEvent log;
@@ -109,6 +114,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 
 						logs.add(log);
 					}
+
 					if(logs.size() > 0) {
 						Payload pl = new Payload.Builder()
 						.messages(logs)
@@ -122,6 +128,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 						.build();
 						Payload.send( pl );
 					}
+					bufferSize = count;
 				}
 
 				lastFlush = System.currentTimeMillis();
