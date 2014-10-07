@@ -55,7 +55,7 @@ Maven info:
 <dependency>
   <groupId>oohlalog</groupId>
   <artifactId>oohlalog-4j</artifactId>
-  <version>0.1.3</version>
+  <version>0.2.3</version>
 </dependency>
 ```
 
