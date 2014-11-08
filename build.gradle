@@ -1,9 +1,21 @@
 apply plugin: 'java'
 apply plugin: "groovy"
 apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.6
-version = '0.2.0'
+version = '1.0.0'
+group = "oohlalog"
+
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.5'
+    }
+}
 
 configurations {
     deployerJars
@@ -26,7 +38,7 @@ dependencies {
 dependencies {
     compile 'log4j:log4j:1.2.17'
 	compile 'com.google.code.gson:gson:2.2.4'
-	groovy("org.codehaus.groovy:groovy-all:1.8.9")
+	testCompile("org.codehaus.groovy:groovy-all:1.8.9")
     testCompile 'org.scala-lang:scala-library:2.11.0'
     testCompile 'com.outr.javasysmon:javasysmon_2.10:0.3.4'
 	testCompile "org.spockframework:spock-core:0.7-groovy-1.8"
@@ -38,14 +50,15 @@ test {
 }
 
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: "http://nexus.bertramlabs.com/content/repositories/publicReleases/") {
-                authentication(userName: labsUser, password: labsPassword)
-            }
-            pom.artifactId = 'oohlalog-4j'
-            project.group = 'oohlalog'
-        }
+
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+    publications = ['maven']
+    pkg {
+        repo = 'oohlalog'
+        userOrg = 'bertramlabs'
+        name = 'oohlalog-4j'
+        licenses = ['Apache-2.0']
     }
 }
