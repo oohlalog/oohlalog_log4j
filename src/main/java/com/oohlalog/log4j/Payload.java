@@ -27,6 +27,7 @@ public class Payload {
 	private String host = null;
 	private String hostName = null;
 	private String path = null;
+	private String agent = "log4j";
 	private int port = 80;
 	private boolean secure = false;
 	private boolean debug = false;
@@ -40,22 +41,22 @@ public class Payload {
 		super();
 	}
 
+
 	/**
 	 * Serialize payload into a transferrable dataformat (json)
-	 * @param pl
 	 * @return
 	 */
-	public static String serialize( Payload pl ) {
+	public String serialize( ) {
+		Payload pl = this;
 		Map<String,Object> payload = new HashMap<String,Object>();
 
 		// Add logs
 		payload.put( PAYLOAD_LOGS, new ArrayList<Map<String,Object>>( pl.getMessages().size() ));
 		for( LoggingEvent le : pl.getMessages() ) {
-			((List<Map<String,Object>>)payload.get( PAYLOAD_LOGS )).add(
-				transform( le )
-			);
+			Map<String,Object> map = transform( le );
+			map.put( "agent", pl.getAgent() );
+			((List<Map<String,Object>>)payload.get( PAYLOAD_LOGS )).add(map);
 		}
-
 		// Add counters
 		if ( pl.getCounters() != null )
 			payload.put( PAYLOAD_COUNTERS, pl.getCounters() );
@@ -66,14 +67,6 @@ public class Payload {
 		return new Gson().toJson( payload );
 	}
 
-	/**
-	 * Serialize a single logging event into transferrable dataformat (json)
-	 * @param le
-	 * @return
-	 */
-	public static String serialize( LoggingEvent le ) {
-		return new Gson().toJson( transform( le ) );
-	}
 
 	/**
 	 * Transform a logging event into a map for serialization
@@ -90,9 +83,8 @@ public class Payload {
 		if (le.getProperty("category") != null) map.put("category", le.getProperty("category")); // allow for an explicit category
 		else map.put( "category", le.getLoggerName() );
 
+
 		if (le.getProperty("token") != null) map.put("token", le.getProperty("token"));
-		else if (le.getMDC("token") != null) map.put("token", le.getMDC("token")); 
-		else if (le.getNDC() != null) map.put("token", le.getNDC()); 
 		if (le.getProperty("hostName") != null) map.put("hostName", le.getProperty("hostName"));
 		if (le.getProperty("increment") != null) map.put("increment", new Integer(le.getProperty("increment")));
 		if (le.getProperty("timestamp") != null) map.put("timestamp", new Long(le.getProperty("timestamp")));
@@ -128,7 +120,7 @@ public class Payload {
 		try {
 			if (pl.getDebug()) System.out.println("Serializing: " + pl.toString());
 			// Serialize payload into json
-			String json = serialize( pl );
+			String json = pl.serialize();
 
 			if (pl.getDebug()) System.out.println( ">>>>>>>>>>>Payload: " + pl.toString() );
 
@@ -225,6 +217,14 @@ public class Payload {
 		this.path = path;
 	}
 
+	public String getAgent() {
+		return agent;
+	}
+
+	public void setAgent(String agent) {
+		this.agent = agent;
+	}
+
 	public int getPort() {
 		return port;
 	}
@@ -256,6 +256,7 @@ public class Payload {
 		sb.append("{authToken='").append(authToken).append('\'');
 		sb.append(", host='").append(host).append('\'');
 		sb.append(", path='").append(path).append('\'');
+		sb.append(", agent='").append(agent).append('\'');
 		sb.append(", secure='").append(secure).append('\'');
 		sb.append(", debug='").append(debug).append('\'');
 		sb.append(", port=").append(port);
@@ -271,6 +272,7 @@ public class Payload {
 		private String host = null;
 		private String hostName = null;
 		private String path = null;
+		private String agent = "log4j";
 		private int port = 80;
 		private boolean secure = false;
 		private boolean debug = false;
@@ -286,6 +288,7 @@ public class Payload {
 			pl.messages = this.messages;
 			pl.counters = this.counters;
 			pl.port = this.port;
+			pl.agent = this.agent;
 			pl.path = this.path;
 			pl.secure = this.secure;
 			pl.debug = this.debug;
@@ -304,6 +307,11 @@ public class Payload {
 
 		public Builder path( String path ) {
 			this.path = path;
+			return this;
+		}
+
+		public Builder agent( String agent ) {
+			this.agent = agent;
 			return this;
 		}
 

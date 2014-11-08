@@ -37,6 +37,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	private String statsPath = "/api/timeSeries/save.json";
 	private int port = 80;
 	private String authToken = null;
+	private String agent = "log4j";
 	private boolean secure = false;
 	private boolean debug = false;
 	private String hostName = null;
@@ -67,10 +68,16 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	protected void append( LoggingEvent event ) {
 		if (getDebug()) System.out.println( ">>>>>>OohLaLogAppender.append" );
 		if (getHostName() != null) event.setProperty("hostName", getHostName());
-		queue.add( event );
+		if (event.getMDC("token") != null) event.setProperty("token", event.getMDC("token").toString());
+		else if (event.getNDC() != null) event.setProperty("token", event.getNDC().toString());
 
-		if ( queue.size() >= maxBuffer && !flushing.get() )
-			flushQueue(queue, maxBuffer);
+		if(queue.size() < 10000) {
+			queue.add( event );
+
+			if ( queue.size() >= maxBuffer && !flushing.get() )
+				flushQueue(queue, maxBuffer);
+		}
+
 	}
 
 	@Override
@@ -92,11 +99,13 @@ public class OohLaLogAppender extends AppenderSkeleton {
 	 * @param queue
 	 */
 	protected void flushQueue( final Queue<LoggingEvent> queue, final int count ) {
-		if (getDebug()) System.out.println( ">>>>>>Flushing " + count + " items from queue");
 		flushing.set( true );
 		executorService.execute(new Runnable() {
 			public void run() {
-				while(queue.size() >= count) {
+				int bufferSize = queue.size();
+				if (getDebug()) System.out.println( ">>>>>>Flushing " + bufferSize + " items from queue");
+
+				while(queue.size() > 0 && queue.size() >= bufferSize) {
 					List<LoggingEvent> logs = new ArrayList<LoggingEvent>(count);
 					for (int i = 0; i < count; i++) {
 						LoggingEvent log;
@@ -105,11 +114,13 @@ public class OohLaLogAppender extends AppenderSkeleton {
 
 						logs.add(log);
 					}
+
 					if(logs.size() > 0) {
 						Payload pl = new Payload.Builder()
 						.messages(logs)
 						.authToken(getAuthToken())
 						.host(getHost())
+						.agent(getAgent())
 						.path(getPath())
 						.port(getPort())
 						.secure(getSecure())
@@ -117,9 +128,8 @@ public class OohLaLogAppender extends AppenderSkeleton {
 						.build();
 						Payload.send( pl );
 					}
+					bufferSize = count;
 				}
-
-
 
 				lastFlush = System.currentTimeMillis();
 				flushing.set( false );
@@ -146,6 +156,7 @@ public class OohLaLogAppender extends AppenderSkeleton {
 					.messages(logs)
 					.authToken(getAuthToken())
 					.host(getHost())
+					.agent(getAgent())
 					.path(getPath())
 					.port(getPort())
 					.secure(getSecure())
@@ -328,6 +339,14 @@ public class OohLaLogAppender extends AppenderSkeleton {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	public String getAgent() {
+		return agent;
+	}
+
+	public void setAgent(String agent) {
+		this.agent = agent;
 	}
 
 	public String getStatsPath() {

@@ -35,7 +35,7 @@ public class OohLaLogAppenderSpec extends Specification {
 
 	def "test submission of oohlalog payload with NDC token"() {
 		setup:
-		def logCount = 500
+		def logCount = 100
 		org.apache.log4j.NDC.push('0s')			
 
 		when:
@@ -57,7 +57,7 @@ public class OohLaLogAppenderSpec extends Specification {
 
 	def "test submission of oohlalog payload with MDC token"() {
 		setup:
-		def logCount = 500
+		def logCount = 100
 		org.apache.log4j.MDC.put('token', '0s')			
 
 		when:
@@ -67,6 +67,8 @@ public class OohLaLogAppenderSpec extends Specification {
 			}
 			logger.info( "Testing MDC token #${it}" )
 		}
+
+		logger.info( 'POOP:'+org.apache.log4j.MDC.get('token')	)
 		Thread.sleep(5500)
 
 		then:

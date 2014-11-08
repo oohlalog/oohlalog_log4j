@@ -17,6 +17,9 @@ buildscript {
     }
 }
 
+
+
+
 configurations {
     deployerJars
 }
@@ -48,7 +51,6 @@ test {
     outputs.upToDateWhen { false }
     systemProperties 'property': 'value'
 }
-
 
 
 bintray {
