@@ -1,11 +1,12 @@
 apply plugin: 'java'
 apply plugin: "groovy"
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.6
-version = '1.0.0'
-group = "oohlalog"
+version = '1.0.1'
+group = "com.oohlalog"
 
 buildscript {
     repositories {
@@ -50,6 +51,28 @@ dependencies {
 test {
     outputs.upToDateWhen { false }
     systemProperties 'property': 'value'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId 'oohlalog-4j'
+
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
 }
 
 
