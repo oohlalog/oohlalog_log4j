@@ -5,7 +5,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.6
-version = '1.0.1'
+version = '1.0.2'
 group = "com.oohlalog"
 
 buildscript {
@@ -57,7 +57,43 @@ publishing {
     publications {
         maven(MavenPublication) {
             artifactId 'oohlalog-4j'
-
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+                    name 'oohlalog-4j'
+                    description 'Provides a log4j appender to send logs to the cloud via the oohlalog cloud logging service.'
+                    url 'http://www.oohlalog.com'
+                    scm {
+                        url 'https://github.com/oohlalog/oohlalog_log4j'
+                        connection 'scm:https://bertramdev@github.com/oohlalog/oohlalog_log4j.git'
+                        developerConnection 'scm:git://github.com/oohlalog/oohlalog_log4j.git'
+                    }
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id 'davydotcom'
+                            name 'David Estes'
+                            email 'destes@bcap.com'
+                        }
+                        developer {
+                            id 'jlenf'
+                            name 'Jeremy Leng'
+                            email 'jleng@bcap.com'
+                        }
+                        developer {
+                            id 'jsaardchit'
+                            name 'Jordon Saardchit'
+                            email 'jsaardchit@bcap.com'
+                        }
+                    }
+                }
+            }
             from components.java
             artifact sourcesJar
             artifact javadocJar
